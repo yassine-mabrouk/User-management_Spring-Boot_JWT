@@ -37,7 +37,7 @@ class WebSecurity extends WebSecurityConfigurerAdapter {
               .authenticated()
               .and()
               .addFilter(this.getAuthenticationFilter())// utiliser la methode pour changer url de login
-            //  .addFilter(new AuthenticationFilter(authenticationManager()));
+              //  .addFilter(new AuthenticationFilter(authenticationManager()));
               .addFilter(new AuthorizationFilter(authenticationManager()))
               .sessionManagement()
               .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

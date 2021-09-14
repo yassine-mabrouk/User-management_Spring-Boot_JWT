@@ -16,10 +16,11 @@ public class UserEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id ;
+    @Column(nullable = true,unique = true)
     private  String userID;
     @Column(length = 255)
     private  String name ;
-    @Column(nullable = true,unique = true)
+    @Column(nullable = false,unique = true)
     private String email;
     private  String encryptedPassword;
     private  String emailVerificationToken;
