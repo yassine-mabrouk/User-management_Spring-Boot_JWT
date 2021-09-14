@@ -2,6 +2,7 @@ package com.enset.fbc.serviceImpli;
 
 import com.enset.fbc.dto.UserDto;
 import com.enset.fbc.entities.UserEntity;
+import com.enset.fbc.errors.ErrorMessages;
 import com.enset.fbc.repositories.UserRepository;
 import com.enset.fbc.service.UserService;
 import com.enset.fbc.shared.Helper;
@@ -26,7 +27,8 @@ public class UserSeviceImpl implements UserService {
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
     @Override
-    public UserDto createUser(UserDto userDto) {
+    public UserDto createUser(UserDto userDto)  {
+
         UserEntity checkUser = userRepository.findByEmail(userDto.getEmail());
         // verifier existance of the user in BD
         if (checkUser!=null) throw  new RuntimeException("User existe !!!");

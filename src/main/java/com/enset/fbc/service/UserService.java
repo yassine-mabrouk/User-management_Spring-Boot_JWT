@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 
 public interface UserService  extends UserDetailsService {
-    public UserDto createUser(UserDto userDto);
+    public UserDto createUser(UserDto userDto) throws Exception;
     public UserDto updateUser(Long userId,UserDto userDto);
     void deleteUser(Long id);
 
