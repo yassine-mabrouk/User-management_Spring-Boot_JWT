@@ -3,6 +3,8 @@ package com.enset.fbc.controllers;
 
 import com.enset.fbc.dto.UserDto;
 import com.enset.fbc.entities.UserEntity;
+import com.enset.fbc.errors.ErrorMessages;
+import com.enset.fbc.errors.UserException;
 import com.enset.fbc.repositories.UserRepository;
 import com.enset.fbc.request.UserRequest;
 import com.enset.fbc.response.UserResponse;
@@ -37,7 +39,9 @@ public class UserController {
 
     @PostMapping
 
-    public ResponseEntity<UserResponse>  creteUser(@RequestBody UserRequest user){
+    public ResponseEntity<UserResponse>  creteUser(@RequestBody UserRequest user) throws Exception {
+        if (user.getName().isEmpty()) throw new UserException(ErrorMessages.MISSING_REQUIRED_FIELD.getErroMessage());
+
         UserDto userDto =new UserDto();
         BeanUtils.copyProperties(user,userDto);
         UserDto createUser =userService.createUser(userDto);
