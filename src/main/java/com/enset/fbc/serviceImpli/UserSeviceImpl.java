@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
 public class UserSeviceImpl implements UserService {
@@ -41,6 +42,26 @@ public class UserSeviceImpl implements UserService {
     }
 
     @Override
+    public UserDto updateUser(Long id, UserDto userDto) {
+        Optional<UserEntity> ckeckUserEntity = userRepository.findById(id);
+        if(!ckeckUserEntity.isPresent()) throw new UsernameNotFoundException("User not exit with this Id :"+id);
+        UserEntity userEntity=ckeckUserEntity.get();
+        userEntity.setName(userDto.getName());
+       UserEntity update= userRepository.save(userEntity);
+        UserDto responseUserDto=new UserDto();
+        BeanUtils.copyProperties(update,responseUserDto);
+        return responseUserDto;
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        Optional<UserEntity> ckeckUserEntity = userRepository.findById(id);
+        if(!ckeckUserEntity.isPresent()) throw new UsernameNotFoundException("User not exit with this Id :"+id);
+        UserEntity userEntity=ckeckUserEntity.get();
+         userRepository.delete(userEntity);
+    }
+
+    @Override
     public UserDto getUser(String email) {
         UserEntity userEntity = userRepository.findByEmail(email);
         if(userEntity == null) throw new UsernameNotFoundException("User not exit with this email :"+email);
@@ -48,6 +69,25 @@ public class UserSeviceImpl implements UserService {
         BeanUtils.copyProperties(userEntity, userDto);
         return userDto;
     }
+
+    @Override
+    public UserDto getUserByUserId(String userId) {
+        UserEntity userEntity = userRepository.findByUserID(userId);
+        if(userEntity == null) throw new UsernameNotFoundException("User not exit with this Id :"+userId);
+        UserDto userDto = new UserDto();
+        BeanUtils.copyProperties(userEntity, userDto);
+        return userDto;
+    }
+    @Override
+    public UserDto getUserById(Long id) {
+        Optional<UserEntity> userEntity = userRepository.findById(id);
+        if(!userEntity.isPresent()) throw new UsernameNotFoundException("User not exit with this Id :"+id);
+        UserDto userDto = new UserDto();
+        BeanUtils.copyProperties(userEntity.get(), userDto);
+        return userDto;
+    }
+
+    // cette methode est dans interfavce UserDetailsService
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserEntity userEntity=userRepository.findByEmail(email);
@@ -56,6 +96,5 @@ public class UserSeviceImpl implements UserService {
         return new User(userEntity.getEmail(),userEntity.getEncryptedPassword(),new ArrayList<>());
     }
 
-    // cette methode est dans interfavce UserDetailsService
 
 }
