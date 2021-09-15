@@ -1,12 +1,16 @@
 package com.enset.fbc.serviceImpli;
 
+import com.enset.fbc.dto.AddressDto;
+import com.enset.fbc.dto.ContactDto;
 import com.enset.fbc.dto.UserDto;
 import com.enset.fbc.entities.UserEntity;
 import com.enset.fbc.errors.ErrorMessages;
+import com.enset.fbc.errors.UserException;
 import com.enset.fbc.repositories.UserRepository;
 import com.enset.fbc.response.UserResponse;
 import com.enset.fbc.service.UserService;
 import com.enset.fbc.shared.Helper;
+import com.enset.fbc.shared.ObjectMapperUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,15 +41,22 @@ public class UserSeviceImpl implements UserService {
         UserEntity checkUser = userRepository.findByEmail(userDto.getEmail());
         // verifier existance of the user in BD
         if (checkUser!=null) throw  new RuntimeException("User existe !!!");
-         UserEntity userEntity=new UserEntity();
-         BeanUtils.copyProperties(userDto,userEntity);
+           for (int i=0;i<userDto.getAddresses().size();i++){
+               AddressDto addressDto=userDto.getAddresses().get(i);
+               addressDto.setUser(userDto);
+               addressDto.setAddressID(helper.generateStringId(10));
+               userDto.getAddresses().set(i,addressDto);
+           }
+           if (userDto.getContact()!=null) {
+               userDto.getContact().setContactID(helper.generateStringId(10));
+               userDto.getContact().setUser(userDto);// obligatoire pour lier user to contact
+           }
+         UserEntity userEntity=ObjectMapperUtils.map(userDto,UserEntity.class);
           userEntity.setUserID(helper.generateStringId(32));
           userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
           userEntity.setGetEmailVerificationStatus(true);
           userRepository.save(userEntity);
-          UserDto responseUserDto=new UserDto();
-          BeanUtils.copyProperties(userEntity,responseUserDto);
-          return responseUserDto;
+          return ObjectMapperUtils.map(userEntity,UserDto.class);
     }
 
     @Override
@@ -54,10 +65,8 @@ public class UserSeviceImpl implements UserService {
         if(!ckeckUserEntity.isPresent()) throw new UsernameNotFoundException("User not exit with this Id :"+id);
         UserEntity userEntity=ckeckUserEntity.get();
         userEntity.setName(userDto.getName());
-       UserEntity update= userRepository.save(userEntity);
-        UserDto responseUserDto=new UserDto();
-        BeanUtils.copyProperties(update,responseUserDto);
-        return responseUserDto;
+        UserEntity update= userRepository.save(userEntity);
+        return  ObjectMapperUtils.map(userEntity,UserDto.class);
     }
 
     @Override
@@ -68,30 +77,26 @@ public class UserSeviceImpl implements UserService {
          userRepository.delete(userEntity);
     }
 
+    //verifier par email
     @Override
     public UserDto getUser(String email) {
         UserEntity userEntity = userRepository.findByEmail(email);
         if(userEntity == null) throw new UsernameNotFoundException("User not exit with this email :"+email);
-        UserDto userDto = new UserDto();
-        BeanUtils.copyProperties(userEntity, userDto);
-        return userDto;
+        return ObjectMapperUtils.map(userEntity,UserDto.class);
     }
-
+    // pour la securite config
     @Override
     public UserDto getUserByUserId(String userId) {
         UserEntity userEntity = userRepository.findByUserID(userId);
         if(userEntity == null) throw new UsernameNotFoundException("User not exit with this Id :"+userId);
-        UserDto userDto = new UserDto();
-        BeanUtils.copyProperties(userEntity, userDto);
-        return userDto;
+        return ObjectMapperUtils.map(userEntity,UserDto.class);
     }
+    // used dans controller
     @Override
     public UserDto getUserById(Long id) {
         Optional<UserEntity> userEntity = userRepository.findById(id);
         if(!userEntity.isPresent()) throw new UsernameNotFoundException("User not exit with this Id :"+id);
-        UserDto userDto = new UserDto();
-        BeanUtils.copyProperties(userEntity.get(), userDto);
-        return userDto;
+        return ObjectMapperUtils.map(userEntity.get(),UserDto.class);
     }
 
     @Override
@@ -102,10 +107,8 @@ public class UserSeviceImpl implements UserService {
         Page<UserEntity> pageUsers=userRepository.findAll(pageableRequest);
         List<UserEntity> users=pageUsers.getContent();
         List<UserDto> userDtoList=new ArrayList<>();
-        for (UserEntity userEntity:users) {
-            UserDto userDto=new UserDto();
-            BeanUtils.copyProperties(userDto,userEntity);
-            userDtoList.add(userDto);
+        if(users!=null) {
+            userDtoList= ObjectMapperUtils.mapAll(users,UserDto.class);
         }
         return userDtoList;
     }

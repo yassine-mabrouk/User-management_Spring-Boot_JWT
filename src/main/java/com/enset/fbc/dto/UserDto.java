@@ -1,10 +1,14 @@
 package com.enset.fbc.dto;
 
+import com.enset.fbc.request.AdressRequest;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
+@NoArgsConstructor
 public class UserDto implements Serializable {
 
     private  Long id ;
@@ -15,4 +19,6 @@ public class UserDto implements Serializable {
     private  String encryptedPassword;
     private  String emailVerificationToken;
     private  Boolean getEmailVerificationStatus;
+    private List<AddressDto> addresses;
+    private ContactDto contact;
 }
