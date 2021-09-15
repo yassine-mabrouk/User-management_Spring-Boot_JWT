@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -54,7 +55,7 @@ public class UserController {
 
     @PostMapping
 
-    public ResponseEntity<UserResponse>  creteUser(@RequestBody UserRequest user) throws Exception {
+    public ResponseEntity<UserResponse>  creteUser(@RequestBody @Valid UserRequest user) throws Exception {
         if (user.getName().isEmpty()) throw new UserException(ErrorMessages.MISSING_REQUIRED_FIELD.getErroMessage());
 
         UserDto userDto =new UserDto();
