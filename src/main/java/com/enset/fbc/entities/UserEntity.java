@@ -1,12 +1,16 @@
 package com.enset.fbc.entities;
 
 
+import com.enset.fbc.request.AdressRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -16,7 +20,6 @@ public class UserEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id ;
-    @Column(nullable = true,unique = true)
     private  String userID;
     @Column(length = 255)
     private  String name ;
@@ -27,6 +30,13 @@ public class UserEntity implements Serializable {
     //@Column(columnDefinition = "boolean default false") // pour donner une description
     @Column(nullable = true)
     private  Boolean getEmailVerificationStatus=false;
+    @OneToMany (mappedBy = "user",cascade = CascadeType.ALL)
+   // cascade = CascadeType.ALL : pour creer les adresse dans la creation de user
+    private List<AddressEntity> addresses;
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
+    private ContactEntity contact ;
+    @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,mappedBy = "users")
+    private Set<GroupesEntity> groupes=new HashSet<>();
 
     public UserEntity(Long id, String name) {
         this.id = id;

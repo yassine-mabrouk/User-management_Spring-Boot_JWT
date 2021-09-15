@@ -9,6 +9,7 @@ import com.enset.fbc.repositories.UserRepository;
 import com.enset.fbc.request.UserRequest;
 import com.enset.fbc.response.UserResponse;
 import com.enset.fbc.service.UserService;
+import com.enset.fbc.shared.ObjectMapperUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,19 +35,16 @@ public class UserController {
     @GetMapping(path = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<UserResponse> getUser(@PathVariable Long id ){
         UserDto userDto=userService.getUserById(id);
-        UserResponse userResponse=new UserResponse();
-        BeanUtils.copyProperties(userDto,userResponse);
-        return new ResponseEntity<>(userResponse,HttpStatus.OK);
+        return new ResponseEntity<>(ObjectMapperUtils.map(userDto,UserResponse.class),HttpStatus.OK);
+
     }
     @GetMapping( produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
     public List<UserResponse> getAllUser(@RequestParam(value = "page",defaultValue = "1") int page ,
                                          @RequestParam(value = "limit",defaultValue = "5") int limit){
         List<UserResponse> userResponseList =new ArrayList<>();
         List<UserDto> users=userService.getAllUsers(page,limit);
-        for (UserDto userDto:users) {
-            UserResponse userResponse=new UserResponse();
-            BeanUtils.copyProperties(userDto,userResponse);
-            userResponseList.add(userResponse);
+        if(users!=null){
+            userResponseList=ObjectMapperUtils.mapAll(users,UserResponse.class);
         }
         return userResponseList;
     }
@@ -56,30 +54,25 @@ public class UserController {
     @PostMapping
 
     public ResponseEntity<UserResponse>  creteUser(@RequestBody @Valid UserRequest user) throws Exception {
+
         if (user.getName().isEmpty()) throw new UserException(ErrorMessages.MISSING_REQUIRED_FIELD.getErroMessage());
 
-        UserDto userDto =new UserDto();
-        BeanUtils.copyProperties(user,userDto);
-        UserDto createUser =userService.createUser(userDto);
-        UserResponse userResponse=new UserResponse();
-        BeanUtils.copyProperties(createUser,userResponse);
-        return  new ResponseEntity<>(userResponse,HttpStatus.CREATED);
+        UserDto createUser =userService.createUser(ObjectMapperUtils.map(user,UserDto.class));
+        return  new ResponseEntity<>(ObjectMapperUtils.map(createUser,UserResponse.class),HttpStatus.CREATED);
+
     }
      @PutMapping(path = "/{id}")
      public  ResponseEntity<UserResponse>  updateUser(@RequestBody UserRequest user,@PathVariable  Long id){
-         UserDto userDto =new UserDto();
-         BeanUtils.copyProperties(user,userDto);
-         UserDto createUser =userService.updateUser(id,userDto);
-         UserResponse userResponse=new UserResponse();
-         BeanUtils.copyProperties(createUser,userResponse);
-         return  new ResponseEntity<>(userResponse,HttpStatus.ACCEPTED);
+
+         UserDto createUser =userService.updateUser(id,ObjectMapperUtils.map(user,UserDto.class));
+
+         return  new ResponseEntity<>(ObjectMapperUtils.map(createUser,UserResponse.class),HttpStatus.ACCEPTED);
     }
+
      @DeleteMapping(path = "/{id}")
      public ResponseEntity<Object> deleteUser(@PathVariable Long id){
           userService.deleteUser(id);
          return  new ResponseEntity<>(HttpStatus.NO_CONTENT);
      }
-
-
 }
 
