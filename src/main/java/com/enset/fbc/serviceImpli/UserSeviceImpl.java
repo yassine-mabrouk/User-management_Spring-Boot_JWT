@@ -4,11 +4,15 @@ import com.enset.fbc.dto.UserDto;
 import com.enset.fbc.entities.UserEntity;
 import com.enset.fbc.errors.ErrorMessages;
 import com.enset.fbc.repositories.UserRepository;
+import com.enset.fbc.response.UserResponse;
 import com.enset.fbc.service.UserService;
 import com.enset.fbc.shared.Helper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -87,6 +92,22 @@ public class UserSeviceImpl implements UserService {
         UserDto userDto = new UserDto();
         BeanUtils.copyProperties(userEntity.get(), userDto);
         return userDto;
+    }
+
+    @Override
+    public List<UserDto> getAllUsers(int page, int limit) {
+         if(page >0) page=page-1;
+        // decrimenter la page car dans spring boot la page debut de 0
+        Pageable pageableRequest= PageRequest.of(page,limit);
+        Page<UserEntity> pageUsers=userRepository.findAll(pageableRequest);
+        List<UserEntity> users=pageUsers.getContent();
+        List<UserDto> userDtoList=new ArrayList<>();
+        for (UserEntity userEntity:users) {
+            UserDto userDto=new UserDto();
+            BeanUtils.copyProperties(userDto,userEntity);
+            userDtoList.add(userDto);
+        }
+        return userDtoList;
     }
 
     // cette methode est dans interfavce UserDetailsService

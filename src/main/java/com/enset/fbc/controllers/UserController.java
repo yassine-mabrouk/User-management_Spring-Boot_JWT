@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -35,6 +37,19 @@ public class UserController {
         BeanUtils.copyProperties(userDto,userResponse);
         return new ResponseEntity<>(userResponse,HttpStatus.OK);
     }
+    @GetMapping( produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
+    public List<UserResponse> getAllUser(@RequestParam(value = "page",defaultValue = "1") int page ,
+                                         @RequestParam(value = "limit",defaultValue = "5") int limit){
+        List<UserResponse> userResponseList =new ArrayList<>();
+        List<UserDto> users=userService.getAllUsers(page,limit);
+        for (UserDto userDto:users) {
+            UserResponse userResponse=new UserResponse();
+            BeanUtils.copyProperties(userDto,userResponse);
+            userResponseList.add(userResponse);
+        }
+        return userResponseList;
+    }
+
 
 
     @PostMapping
