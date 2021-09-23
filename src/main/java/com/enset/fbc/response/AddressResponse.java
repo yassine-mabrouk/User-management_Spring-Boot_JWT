@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class AddressResponse {
+    private  long id ;
     private  String addressID;
     private String city ;
     private String country ;

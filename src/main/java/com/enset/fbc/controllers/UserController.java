@@ -40,9 +40,10 @@ public class UserController {
     }
     @GetMapping( produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
     public List<UserResponse> getAllUser(@RequestParam(value = "page",defaultValue = "1") int page ,
-                                         @RequestParam(value = "limit",defaultValue = "5") int limit){
+                                         @RequestParam(value = "limit",defaultValue = "5") int limit,
+                                         @RequestParam(value = "search",defaultValue = "") String search){
         List<UserResponse> userResponseList =new ArrayList<>();
-        List<UserDto> users=userService.getAllUsers(page,limit);
+        List<UserDto> users=userService.getAllUsers(page,limit,search);
         if(users!=null){
             userResponseList=ObjectMapperUtils.mapAll(users,UserResponse.class);
         }
