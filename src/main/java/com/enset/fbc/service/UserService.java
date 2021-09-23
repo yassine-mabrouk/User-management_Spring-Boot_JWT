@@ -17,5 +17,5 @@ public interface UserService  extends UserDetailsService {
     UserDto getUserByUserId(String userId);// pour secuirty
     UserDto getUserById(Long id);// pour api get
 
-    List<UserDto> getAllUsers(int page, int limit);
+    List<UserDto> getAllUsers(int page, int limit,String search);
 }

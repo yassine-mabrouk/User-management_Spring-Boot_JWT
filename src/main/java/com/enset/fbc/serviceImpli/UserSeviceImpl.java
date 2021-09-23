@@ -3,6 +3,7 @@ package com.enset.fbc.serviceImpli;
 import com.enset.fbc.dto.AddressDto;
 import com.enset.fbc.dto.ContactDto;
 import com.enset.fbc.dto.UserDto;
+import com.enset.fbc.entities.ContactEntity;
 import com.enset.fbc.entities.UserEntity;
 import com.enset.fbc.errors.ErrorMessages;
 import com.enset.fbc.errors.UserException;
@@ -65,6 +66,17 @@ public class UserSeviceImpl implements UserService {
         if(!ckeckUserEntity.isPresent()) throw new UsernameNotFoundException("User not exit with this Id :"+id);
         UserEntity userEntity=ckeckUserEntity.get();
         userEntity.setName(userDto.getName());
+        /*
+        // probleme a regler
+       // userEntity.setAddresses(userDto.getAddresses());
+        if(userDto.getContact()!=null) {
+            ContactEntity contactEntity = ObjectMapperUtils.map(userDto.getContact(), ContactEntity.class);
+            contactEntity.setUser(userEntity);
+            userEntity.setContact(contactEntity);
+        }
+
+         */
+
         UserEntity update= userRepository.save(userEntity);
         return  ObjectMapperUtils.map(userEntity,UserDto.class);
     }
@@ -100,11 +112,17 @@ public class UserSeviceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getAllUsers(int page, int limit) {
+    public List<UserDto> getAllUsers(int page, int limit,String search) {
          if(page >0) page=page-1;
         // decrimenter la page car dans spring boot la page debut de 0
         Pageable pageableRequest= PageRequest.of(page,limit);
-        Page<UserEntity> pageUsers=userRepository.findAll(pageableRequest);
+        Page<UserEntity> pageUsers;
+        if (search.isEmpty()){
+            pageUsers=userRepository.findAll(pageableRequest);
+        }else{
+            pageUsers=userRepository.findByNameContains(pageableRequest,search);
+        }
+
         List<UserEntity> users=pageUsers.getContent();
         List<UserDto> userDtoList=new ArrayList<>();
         if(users!=null) {
