@@ -80,7 +80,8 @@ public class AuthenticationFilter  extends UsernamePasswordAuthenticationFilter 
        // if (userDto==null) System.out.println("User Dto is null");
        res.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
        //res.addHeader("user_id", userDto.getUserID());
-       //  res.getWriter().write("{\"token\": \"" + token + "\", \"id\": \""+ userDto.getUserID() + "\"}");
+       //  res.getWriter().write("{\"token\": \"" + token + "\", \"id\": \""+ userDto.getUserID() + "\"}
+        res.getWriter().write("{\"token\": \"" + token + "\"}");
 
     }
 
