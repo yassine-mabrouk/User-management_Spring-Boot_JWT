@@ -94,7 +94,9 @@ public class UserSeviceImpl implements UserService {
     public UserDto getUser(String email) {
         UserEntity userEntity = userRepository.findByEmail(email);
         if(userEntity == null) throw new UsernameNotFoundException("User not exit with this email :"+email);
-        return ObjectMapperUtils.map(userEntity,UserDto.class);
+       UserDto userDto =new UserDto();
+       BeanUtils.copyProperties(userEntity,userDto);
+        return userDto;
     }
     // pour la securite config
     @Override

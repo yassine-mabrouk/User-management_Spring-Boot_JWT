@@ -62,6 +62,7 @@ public class AuthenticationFilter  extends UsernamePasswordAuthenticationFilter 
         }
     }
 
+
   // methode sexecuter si le user existe
     @Override
     protected void successfulAuthentication(HttpServletRequest req,
@@ -69,20 +70,25 @@ public class AuthenticationFilter  extends UsernamePasswordAuthenticationFilter 
                                             FilterChain chain,
                           Authentication auth) throws IOException, ServletException {
         String userName = ((User) auth.getPrincipal()).getUsername();
+        // Notes : il faut ecrire la class en miniscule au debut userSeviceImpl dans getBean
+        UserService userService = (UserService)SpringApplicationContext.getBean("userSeviceImpl");
+        UserDto userDto = userService.getUser(userName);
+
         String token = Jwts.builder()
                 .setSubject(userName)
+                .claim("id", userDto.getId())// clianm pour envoyer data dans payload de token
+                .claim("name",userDto.getName())
                 .setExpiration(new Date(System.currentTimeMillis()+SecurityConstants.EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512,SecurityConstants.TOKEN_SECRET)
                  .compact();
-       // Notes : il faut ecrire la class en miniscule au debut userSeviceImpl dans getBean
-        //UserService userService =(UserService) SpringApplicationContext.getBean("userSeviceImpl");
-       // UserDto userDto = userService.getUser(userName);
-       // if (userDto==null) System.out.println("User Dto is null");
+
        res.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
-       //res.addHeader("user_id", userDto.getUserID());
-       //  res.getWriter().write("{\"token\": \"" + token + "\", \"id\": \""+ userDto.getUserID() + "\"}");
+       res.addHeader("user_id", userDto.getUserID());
+       res.getWriter().write("{\"token\": \"" + token + "\", \"id\": \""+ userDto.getId() + "\"}");
+
 
     }
+
 
     }
 

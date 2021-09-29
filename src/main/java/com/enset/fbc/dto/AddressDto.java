@@ -12,5 +12,6 @@ public class AddressDto {
     private String country ;
     private String street ;
     private String postal ;
+    private String type;
     private UserDto user;
 }
