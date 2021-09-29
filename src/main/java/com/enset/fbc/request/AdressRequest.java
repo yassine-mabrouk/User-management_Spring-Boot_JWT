@@ -15,4 +15,5 @@ public class AdressRequest {
     private String country ;
     private String street ;
     private String postal ;
+    private String type;
 }

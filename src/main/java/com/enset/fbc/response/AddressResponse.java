@@ -13,4 +13,5 @@ public class AddressResponse {
     private String country ;
     private String street ;
     private String postal ;
+    private String type;
 }
